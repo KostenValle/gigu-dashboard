@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GiGU Dashboard - Análise de Aquisição</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #111827; color: white; }
+    
+    /* Login */
+    .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .login-box { background: #1F2937; border-radius: 16px; padding: 40px; width: 100%; max-width: 400px; border: 1px solid #374151; }
+    .login-title { font-size: 28px; font-weight: bold; text-align: center; margin-bottom: 8px; }
+    .login-subtitle { color: #9CA3AF; text-align: center; margin-bottom: 32px; }
+    .login-label { display: block; color: #D1D5DB; font-size: 14px; margin-bottom: 8px; }
+    .login-input { width: 100%; padding: 12px 16px; background: #374151; border: 1px solid #4B5563; border-radius: 8px; color: white; font-size: 16px; outline: none; }
+    .login-input:focus { border-color: #8B5CF6; }
+    .login-error { background: #7F1D1D; border: 1px solid #DC2626; color: #FCA5A5; padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 14px; display: none; }
+    .login-btn { width: 100%; padding: 14px; background: #7C3AED; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 24px; transition: background 0.2s; }
+    .login-btn:hover { background: #6D28D9; }
+    .login-footer { text-align: center; color: #6B7280; font-size: 12px; margin-top: 24px; }
+    
+    /* Dashboard */
+    .dashboard { display: none; padding: 24px; max-width: 1400px; margin: 0 auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .header h1 { font-size: 28px; flex: 1; text-align: center; }
+    .logout-btn { background: #374151; color: #D1D5DB; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+    .logout-btn:hover { background: #4B5563; }
+    .subtitle { text-align: center; color: #9CA3AF; margin-bottom: 32px; }
+    
+    /* Cards */
+    .card { background: #1F2937; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    .card-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+    .card-subtitle { font-size: 14px; color: #9CA3AF; margin-bottom: 16px; }
+    .chart-container { position: relative; height: 300px; }
+    
+    /* Colors */
+    .text-orange { color: #F97316; }
+    .text-pink { color: #EC4899; }
+    .text-cyan { color: #06B6D4; }
+    .text-purple { color: #8B5CF6; }
+    .text-blue { color: #3B82F6; }
+    .text-green { color: #10B981; }
+    .text-amber { color: #F59E0B; }
+    .text-red { color: #EF4444; }
+    
+    /* Table */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 12px 8px; text-align: right; border-bottom: 1px solid #374151; }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: #9CA3AF; font-weight: 600; }
+    tr:hover { background: #374151; }
+    
+    /* Analysis */
+    .analysis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 16px; }
+    .analysis-item h3 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+    .analysis-item p { font-size: 13px; color: #D1D5DB; margin-bottom: 4px; }
+    .analysis-footer { border-top: 1px solid #374151; padding-top: 16px; margin-top: 16px; }
+    
+    /* Funnel */
+    .funnel-stats { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-top: 16px; text-align: center; }
+    .funnel-stats > div { min-width: 80px; }
+    .funnel-stats .value { font-size: 18px; font-weight: bold; }
+    .funnel-stats .label { font-size: 12px; color: #9CA3AF; }
+    .funnel-arrow { color: #6B7280; align-self: center; }
+    
+    /* Section title */
+    .section-title { font-size: 24px; font-weight: bold; text-align: center; margin: 32px 0 24px; }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div class="login-container" id="loginScreen">
+    <div class="login-box">
+      <div class="login-title">📊 GiGU Dashboard</div>
+      <div class="login-subtitle">Análise de Aquisição</div>
+      
+      <form onsubmit="handleLogin(event)">
+        <label class="login-label">Senha de Acesso</label>
+        <input type="password" id="passwordInput" class="login-input" placeholder="Digite a senha" autofocus>
+        <div class="login-error" id="errorMsg">Senha incorreta. Tente novamente.</div>
+        <button type="submit" class="login-btn">Acessar Dashboard</button>
+      </form>
+      
+      <div class="login-footer">Acesso restrito à equipe StopClub</div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard">
+    <div class="header">
+      <div></div>
+      <h1>📊 Análise de Aquisição GiGU</h1>
+      <button class="logout-btn" onclick="logout()">🔒 Sair</button>
+    </div>
+    <p class="subtitle">Funil: Downloads → Cadastros → Trials → Clientes | Ago-Dez 2025</p>
+
+    <!-- Downloads -->
+    <div class="card">
+      <div class="card-title text-orange">📥 Downloads do App</div>
+      <div class="card-subtitle">Crescimento no período: <span class="text-orange" id="crescDownloads"></span></div>
+      <div class="chart-container"><canvas id="chartDownloads"></canvas></div>
+    </div>
+
+    <!-- Cadastros -->
+    <div class="card">
+      <div class="card-title text-pink">📝 Cadastros</div>
+      <div class="card-subtitle">Crescimento no período: <span class="text-pink" id="crescCadastros"></span></div>
+      <div class="chart-container"><canvas id="chartCadastros"></canvas></div>
+    </div>
+
+    <!-- Trials -->
+    <div class="card">
+      <div class="card-title text-cyan">🚀 Novos Trials</div>
+      <div class="card-subtitle">Crescimento no período: <span id="crescTrials"></span></div>
+      <div class="chart-container"><canvas id="chartTrials"></canvas></div>
+    </div>
+
+    <!-- Total Clientes -->
+    <div class="card">
+      <div class="card-title text-purple">📈 Total de Novos Clientes (Cartão + PIX)</div>
+      <div class="card-subtitle">Crescimento no período: <span class="text-purple" id="crescTotal"></span></div>
+      <div class="chart-container"><canvas id="chartTotal"></canvas></div>
+    </div>
+
+    <!-- Cartão -->
+    <div class="card">
+      <div class="card-title text-blue">💳 Novos Clientes - Cartão</div>
+      <div class="card-subtitle">Crescimento no período: <span class="text-blue" id="crescCartao"></span> | Participação: <span id="partCartao"></span></div>
+      <div class="chart-container"><canvas id="chartCartao"></canvas></div>
+    </div>
+
+    <!-- PIX -->
+    <div class="card">
+      <div class="card-title text-green">🟢 Novos Clientes - PIX</div>
+      <div class="card-subtitle">Crescimento no período: <span class="text-green" id="crescPix"></span> | Participação: <span id="partPix"></span></div>
+      <div class="chart-container"><canvas id="chartPix"></canvas></div>
+    </div>
+
+    <!-- Preço Médio -->
+    <div class="card">
+      <div class="card-title text-amber">💰 Preço Médio Geral</div>
+      <div class="card-subtitle">Crescimento no período: <span class="text-amber" id="crescPreco"></span> | Média: <span id="mediaPreco"></span></div>
+      <div class="chart-container"><canvas id="chartPreco"></canvas></div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="card">
+      <div class="card-title">📋 Dados Detalhados</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Mês</th>
+            <th class="text-orange">Downloads</th>
+            <th class="text-pink">Cadastros</th>
+            <th class="text-cyan">Trials</th>
+            <th class="text-purple">Clientes</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Análise -->
+    <div class="card">
+      <div class="card-title">🔍 Análise Global</div>
+      <div class="analysis-grid" id="analysisGrid"></div>
+      <div class="analysis-footer" id="analysisFooter"></div>
+    </div>
+
+    <!-- Seção Conversão -->
+    <div class="section-title">📊 Análise de Conversão</div>
+
+    <!-- Funil -->
+    <div class="card">
+      <div class="card-title text-purple">🔻 Funil Geral de Conversão</div>
+      <div class="card-subtitle">Período completo: Ago-Dez 2025</div>
+      <div class="chart-container"><canvas id="chartFunil"></canvas></div>
+      <div class="funnel-stats" id="funnelStats"></div>
+    </div>
+
+    <!-- Conv Download > Cadastro -->
+    <div class="card">
+      <div class="card-title text-pink">📥→📝 Conversão Download → Cadastro</div>
+      <div class="card-subtitle">Média do período: <span class="text-pink" id="convDC"></span></div>
+      <div class="chart-container"><canvas id="chartConvDC"></canvas></div>
+    </div>
+
+    <!-- Conv Cadastro > Trial -->
+    <div class="card">
+      <div class="card-title text-cyan">📝→🚀 Conversão Cadastro → Trial</div>
+      <div class="card-subtitle">Média do período: <span class="text-cyan" id="convCT"></span></div>
+      <div class="chart-container"><canvas id="chartConvCT"></canvas></div>
+    </div>
+
+    <!-- Conv Trial > Vendas -->
+    <div class="card">
+      <div class="card-title text-purple">🚀→💰 Conversão Trial → Vendas</div>
+      <div class="card-subtitle">Média do período: <span class="text-purple" id="convTV"></span></div>
+      <div class="chart-container"><canvas id="chartConvTV"></canvas></div>
+    </div>
+
+    <!-- Conv Download > Vendas -->
+    <div class="card">
+      <div class="card-title text-green">📥→💰 Conversão Download → Vendas (End-to-End)</div>
+      <div class="card-subtitle">Média do período: <span class="text-green" id="convDV"></span></div>
+      <div class="chart-container"><canvas id="chartConvDV"></canvas></div>
+    </div>
+
+    <div style="text-align: center; color: #6B7280; font-size: 14px; padding: 32px 0;">
+      GiGU Dashboard © 2025 StopClub
+    </div>
+  </div>
+
+  <script>
+    // SENHA
+    const SENHA_CORRETA = 'gigu2025';
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const password = document.getElementById('passwordInput').value;
+      if (password === SENHA_CORRETA) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        initDashboard();
+      } else {
+        document.getElementById('errorMsg').style.display = 'block';
+        document.getElementById('passwordInput').value = '';
+      }
+    }
+
+    function logout() {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('passwordInput').value = '';
+      document.getElementById('errorMsg').style.display = 'none';
+    }
+
+    // DADOS
+    const meses = ['Ago/25', 'Set/25', 'Out/25', 'Nov/25', 'Dez/25'];
+    const downloads = [70340, 75805, 84111, 83341, 80356];
+    const cadastros = [37360, 42090, 48330, 45570, 37890];
+    const trials = [38010, 41300, 47860, 45220, 37410];
+    const cartao = [12640, 12880, 13040, 12830, 13220];
+    const pix = [3889, 4342, 7118, 7101, 4656];
+    const preco = [14.89, 14.82, 14.87, 16.36, 15.10];
+
+    const total = cartao.map((c, i) => c + pix[i]);
+
+    // Funções auxiliares
+    function calcCresc(arr) {
+      return arr.map((v, i) => i === 0 ? null : parseFloat(((v - arr[i-1]) / arr[i-1] * 100).toFixed(1)));
+    }
+
+    function crescPeriodo(arr) {
+      return ((arr[4] - arr[0]) / arr[0] * 100).toFixed(1);
+    }
+
+    function soma(arr) {
+      return arr.reduce((a, b) => a + b, 0);
+    }
+
+    function media(arr) {
+      return Math.round(soma(arr) / arr.length);
+    }
+
+    function formatNum(n) {
+      return n.toLocaleString('pt-BR');
+    }
+
+    // Conversões
+    const convDC = cadastros.map((c, i) => parseFloat((c / downloads[i] * 100).toFixed(1)));
+    const convCT = trials.map((t, i) => parseFloat((t / cadastros[i] * 100).toFixed(1)));
+    const convTV = total.map((v, i) => parseFloat((v / trials[i] * 100).toFixed(1)));
+    const convDV = total.map((v, i) => parseFloat((v / downloads[i] * 100).toFixed(1)));
+
+    // Crescimento das conversões mês a mês
+    const crescConvDC = calcCresc(convDC);
+    const crescConvCT = calcCresc(convCT);
+    const crescConvTV = calcCresc(convTV);
+    const crescConvDV = calcCresc(convDV);
+
+    const totalDownloads = soma(downloads);
+    const totalCadastros = soma(cadastros);
+    const totalTrials = soma(trials);
+    const totalVendas = soma(total);
+
+    const convGeralDC = (totalCadastros / totalDownloads * 100).toFixed(1);
+    const convGeralCT = (totalTrials / totalCadastros * 100).toFixed(1);
+    const convGeralTV = (totalVendas / totalTrials * 100).toFixed(1);
+    const convGeralDV = (totalVendas / totalDownloads * 100).toFixed(1);
+
+    // Chart config
+    function createChart(canvasId, labels, barData, barColor, lineData, lineColor, barLabel, yMax) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: barLabel,
+              data: barData,
+              backgroundColor: barColor,
+              borderRadius: 4,
+              order: 2
+            },
+            {
+              label: 'Crescimento %',
+              data: lineData,
+              type: 'line',
+              borderColor: lineColor,
+              backgroundColor: lineColor,
+              borderWidth: 3,
+              pointRadius: 5,
+              pointBackgroundColor: lineColor,
+              yAxisID: 'y1',
+              order: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: yMax,
+              grid: { color: '#374151' },
+              ticks: { color: '#9CA3AF' }
+            },
+            y1: {
+              position: 'right',
+              grid: { display: false },
+              ticks: { color: '#F59E0B', callback: v => v + '%' }
+            },
+            x: {
+              grid: { color: '#374151' },
+              ticks: { color: '#9CA3AF' }
+            }
+          },
+          plugins: {
+            legend: { labels: { color: '#9CA3AF' } }
+          }
+        }
+      });
+    }
+
+    function createConvChart(canvasId, labels, data, color, crescData, yMin, yMax) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: '% Conversão',
+              data: data,
+              backgroundColor: color,
+              borderRadius: 4,
+              order: 2
+            },
+            {
+              label: 'Crescimento %',
+              data: crescData,
+              type: 'line',
+              borderColor: '#F59E0B',
+              backgroundColor: '#F59E0B',
+              borderWidth: 3,
+              pointRadius: 5,
+              pointBackgroundColor: '#F59E0B',
+              yAxisID: 'y1',
+              order: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            y: {
+              min: yMin,
+              max: yMax,
+              grid: { color: '#374151' },
+              ticks: { color: '#9CA3AF', callback: v => v + '%' }
+            },
+            y1: {
+              position: 'right',
+              grid: { display: false },
+              ticks: { color: '#F59E0B', callback: v => v + '%' }
+            },
+            x: {
+              grid: { color: '#374151' },
+              ticks: { color: '#9CA3AF' }
+            }
+          },
+          plugins: {
+            legend: { labels: { color: '#9CA3AF' } }
+          }
+        }
+      });
+    }
+
+    function initDashboard() {
+      // Crescimentos
+      const crescDownloadsVal = crescPeriodo(downloads);
+      const crescCadastrosVal = crescPeriodo(cadastros);
+      const crescTrialsVal = crescPeriodo(trials);
+      const crescTotalVal = crescPeriodo(total);
+      const crescCartaoVal = crescPeriodo(cartao);
+      const crescPixVal = crescPeriodo(pix);
+      const crescPrecoVal = crescPeriodo(preco);
+
+      // Atualizar textos
+      document.getElementById('crescDownloads').textContent = '+' + crescDownloadsVal + '%';
+      document.getElementById('crescCadastros').textContent = '+' + crescCadastrosVal + '%';
+      
+      const trialsEl = document.getElementById('crescTrials');
+      trialsEl.textContent = crescTrialsVal + '%';
+      trialsEl.className = parseFloat(crescTrialsVal) >= 0 ? 'text-cyan' : 'text-red';
+      
+      document.getElementById('crescTotal').textContent = '+' + crescTotalVal + '%';
+      document.getElementById('crescCartao').textContent = '+' + crescCartaoVal + '%';
+      document.getElementById('crescPix').textContent = '+' + crescPixVal + '%';
+      document.getElementById('crescPreco').textContent = '+' + crescPrecoVal + '%';
+
+      const mediaCartaoVal = media(cartao);
+      const mediaPixVal = media(pix);
+      const mediaTotalVal = mediaCartaoVal + mediaPixVal;
+      document.getElementById('partCartao').textContent = (mediaCartaoVal / mediaTotalVal * 100).toFixed(1) + '%';
+      document.getElementById('partPix').textContent = (mediaPixVal / mediaTotalVal * 100).toFixed(1) + '%';
+      document.getElementById('mediaPreco').textContent = 'R$' + (soma(preco) / 5).toFixed(2);
+
+      document.getElementById('convDC').textContent = convGeralDC + '%';
+      document.getElementById('convCT').textContent = convGeralCT + '%';
+      document.getElementById('convTV').textContent = convGeralTV + '%';
+      document.getElementById('convDV').textContent = convGeralDV + '%';
+
+      // Gráficos
+      createChart('chartDownloads', meses, downloads, '#F97316', calcCresc(downloads), '#F59E0B', 'Downloads', 100000);
+      createChart('chartCadastros', meses, cadastros, '#EC4899', calcCresc(cadastros), '#F59E0B', 'Cadastros', 60000);
+      createChart('chartTrials', meses, trials, '#06B6D4', calcCresc(trials), '#F59E0B', 'Trials', 55000);
+      createChart('chartTotal', meses, total, '#8B5CF6', calcCresc(total), '#F59E0B', 'Total Clientes', 25000);
+      createChart('chartCartao', meses, cartao, '#3B82F6', calcCresc(cartao), '#F59E0B', 'Cartão', 16000);
+      createChart('chartPix', meses, pix, '#10B981', calcCresc(pix), '#F59E0B', 'PIX', 10000);
+      createChart('chartPreco', meses, preco, '#F59E0B', calcCresc(preco), '#EF4444', 'Preço Médio (R$)', 20);
+
+      // Funil
+      const ctxFunil = document.getElementById('chartFunil').getContext('2d');
+      new Chart(ctxFunil, {
+        type: 'bar',
+        data: {
+          labels: ['Downloads', 'Cadastros', 'Trials', 'Vendas'],
+          datasets: [{
+            data: [totalDownloads, totalCadastros, totalTrials, totalVendas],
+            backgroundColor: ['#F97316', '#EC4899', '#06B6D4', '#8B5CF6'],
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: '#374151' }, ticks: { color: '#9CA3AF' } },
+            y: { grid: { color: '#374151' }, ticks: { color: '#9CA3AF' } }
+          }
+        }
+      });
+
+      document.getElementById('funnelStats').innerHTML = `
+        <div><div class="value text-orange">${formatNum(totalDownloads)}</div><div class="label">Downloads (100%)</div></div>
+        <div class="funnel-arrow">→</div>
+        <div><div class="value text-pink">${formatNum(totalCadastros)}</div><div class="label">Cadastros (${convGeralDC}%)</div></div>
+        <div class="funnel-arrow">→</div>
+        <div><div class="value text-cyan">${formatNum(totalTrials)}</div><div class="label">Trials (${(totalTrials/totalDownloads*100).toFixed(1)}%)</div></div>
+        <div class="funnel-arrow">→</div>
+        <div><div class="value text-purple">${formatNum(totalVendas)}</div><div class="label">Vendas (${convGeralDV}%)</div></div>
+      `;
+
+      // Conversões
+      createConvChart('chartConvDC', meses, convDC, '#EC4899', crescConvDC, 40, 60);
+      createConvChart('chartConvCT', meses, convCT, '#06B6D4', crescConvCT, 90, 110);
+      createConvChart('chartConvTV', meses, convTV, '#8B5CF6', crescConvTV, 35, 50);
+      createConvChart('chartConvDV', meses, convDV, '#10B981', crescConvDV, 20, 26);
+
+      // Tabela
+      let tableHTML = '';
+      for (let i = 0; i < 5; i++) {
+        tableHTML += `<tr>
+          <td>${meses[i]}</td>
+          <td>${formatNum(downloads[i])}</td>
+          <td>${formatNum(cadastros[i])}</td>
+          <td>${formatNum(trials[i])}</td>
+          <td>${formatNum(total[i])}</td>
+        </tr>`;
+      }
+      document.getElementById('tableBody').innerHTML = tableHTML;
+
+      // Análise
+      document.getElementById('analysisGrid').innerHTML = `
+        <div class="analysis-item">
+          <h3 class="text-orange">📥 Downloads</h3>
+          <p>Média: ${formatNum(media(downloads))}/mês</p>
+          <p>Cresc: +${crescDownloadsVal}%</p>
+        </div>
+        <div class="analysis-item">
+          <h3 class="text-pink">📝 Cadastros</h3>
+          <p>Média: ${formatNum(media(cadastros))}/mês</p>
+          <p>Cresc: +${crescCadastrosVal}%</p>
+        </div>
+        <div class="analysis-item">
+          <h3 class="text-cyan">🚀 Trials</h3>
+          <p>Média: ${formatNum(media(trials))}/mês</p>
+          <p>Cresc: ${crescTrialsVal}%</p>
+        </div>
+        <div class="analysis-item">
+          <h3 class="text-blue">💳 Cartão</h3>
+          <p>${(mediaCartaoVal/mediaTotalVal*100).toFixed(1)}% das vendas</p>
+          <p>Cresc: +${crescCartaoVal}%</p>
+        </div>
+        <div class="analysis-item">
+          <h3 class="text-green">🟢 PIX</h3>
+          <p>${(mediaPixVal/mediaTotalVal*100).toFixed(1)}% das vendas</p>
+          <p>Cresc: +${crescPixVal}%</p>
+        </div>
+      `;
+
+      document.getElementById('analysisFooter').innerHTML = `
+        <p><strong>Download → Cadastro:</strong> ${convGeralDC}% | 
+        <strong>Cadastro → Trial:</strong> ${convGeralCT}% | 
+        <strong>Trial → Venda:</strong> ${convGeralTV}% | 
+        <strong>End-to-End:</strong> ${convGeralDV}%</p>
+      `;
+    }
+  </script>
+</body>
+</html>
