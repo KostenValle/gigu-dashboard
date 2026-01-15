@@ -32,8 +32,7 @@
     
     /* Cards */
     .card { background: #1F2937; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
-    .card-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
-    .card-subtitle { font-size: 14px; color: #9CA3AF; margin-bottom: 16px; }
+    .card-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
     .chart-container { position: relative; height: 300px; }
     
     /* Colors */
@@ -45,6 +44,7 @@
     .text-green { color: #10B981; }
     .text-amber { color: #F59E0B; }
     .text-red { color: #EF4444; }
+    .text-gray { color: #9CA3AF; }
     
     /* Table */
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -61,9 +61,10 @@
     
     /* Funnel */
     .funnel-stats { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-top: 16px; text-align: center; }
-    .funnel-stats > div { min-width: 80px; }
+    .funnel-stats > div { min-width: 100px; }
     .funnel-stats .value { font-size: 18px; font-weight: bold; }
     .funnel-stats .label { font-size: 12px; color: #9CA3AF; }
+    .funnel-stats .sublabel { font-size: 11px; color: #6B7280; margin-top: 2px; }
     .funnel-arrow { color: #6B7280; align-self: center; }
     
     /* Section title */
@@ -101,67 +102,66 @@
     <!-- Downloads -->
     <div class="card">
       <div class="card-title text-orange">📥 Downloads do App</div>
-      <div class="card-subtitle">Crescimento no período: <span class="text-orange" id="crescDownloads"></span></div>
       <div class="chart-container"><canvas id="chartDownloads"></canvas></div>
     </div>
 
     <!-- Cadastros -->
     <div class="card">
       <div class="card-title text-pink">📝 Cadastros</div>
-      <div class="card-subtitle">Crescimento no período: <span class="text-pink" id="crescCadastros"></span></div>
       <div class="chart-container"><canvas id="chartCadastros"></canvas></div>
     </div>
 
     <!-- Trials -->
     <div class="card">
       <div class="card-title text-cyan">🚀 Novos Trials</div>
-      <div class="card-subtitle">Crescimento no período: <span id="crescTrials"></span></div>
       <div class="chart-container"><canvas id="chartTrials"></canvas></div>
     </div>
 
     <!-- Total Clientes -->
     <div class="card">
       <div class="card-title text-purple">📈 Total de Novos Clientes (Cartão + PIX)</div>
-      <div class="card-subtitle">Crescimento no período: <span class="text-purple" id="crescTotal"></span></div>
       <div class="chart-container"><canvas id="chartTotal"></canvas></div>
     </div>
 
     <!-- Cartão -->
     <div class="card">
       <div class="card-title text-blue">💳 Novos Clientes - Cartão</div>
-      <div class="card-subtitle">Crescimento no período: <span class="text-blue" id="crescCartao"></span> | Participação: <span id="partCartao"></span></div>
       <div class="chart-container"><canvas id="chartCartao"></canvas></div>
     </div>
 
     <!-- PIX -->
     <div class="card">
       <div class="card-title text-green">🟢 Novos Clientes - PIX</div>
-      <div class="card-subtitle">Crescimento no período: <span class="text-green" id="crescPix"></span> | Participação: <span id="partPix"></span></div>
       <div class="chart-container"><canvas id="chartPix"></canvas></div>
     </div>
 
     <!-- Preço Médio -->
     <div class="card">
       <div class="card-title text-amber">💰 Preço Médio Geral</div>
-      <div class="card-subtitle">Crescimento no período: <span class="text-amber" id="crescPreco"></span> | Média: <span id="mediaPreco"></span></div>
       <div class="chart-container"><canvas id="chartPreco"></canvas></div>
     </div>
 
     <!-- Tabela -->
     <div class="card">
       <div class="card-title">📋 Dados Detalhados</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Mês</th>
-            <th class="text-orange">Downloads</th>
-            <th class="text-pink">Cadastros</th>
-            <th class="text-cyan">Trials</th>
-            <th class="text-purple">Clientes</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Mês</th>
+              <th class="text-orange">Downloads</th>
+              <th class="text-orange">Var %</th>
+              <th class="text-pink">Cadastros</th>
+              <th class="text-pink">Var %</th>
+              <th class="text-cyan">Trials</th>
+              <th class="text-cyan">Var %</th>
+              <th class="text-purple">Clientes</th>
+              <th class="text-purple">Var %</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Análise -->
@@ -177,7 +177,7 @@
     <!-- Funil -->
     <div class="card">
       <div class="card-title text-purple">🔻 Funil Geral de Conversão</div>
-      <div class="card-subtitle">Período completo: Ago-Dez 2025</div>
+      <p style="color: #9CA3AF; font-size: 14px; margin-bottom: 16px;">Período completo: Ago-Dez 2025</p>
       <div class="chart-container"><canvas id="chartFunil"></canvas></div>
       <div class="funnel-stats" id="funnelStats"></div>
     </div>
@@ -185,28 +185,24 @@
     <!-- Conv Download > Cadastro -->
     <div class="card">
       <div class="card-title text-pink">📥→📝 Conversão Download → Cadastro</div>
-      <div class="card-subtitle">Média do período: <span class="text-pink" id="convDC"></span></div>
       <div class="chart-container"><canvas id="chartConvDC"></canvas></div>
     </div>
 
     <!-- Conv Cadastro > Trial -->
     <div class="card">
       <div class="card-title text-cyan">📝→🚀 Conversão Cadastro → Trial</div>
-      <div class="card-subtitle">Média do período: <span class="text-cyan" id="convCT"></span></div>
       <div class="chart-container"><canvas id="chartConvCT"></canvas></div>
     </div>
 
     <!-- Conv Trial > Vendas -->
     <div class="card">
       <div class="card-title text-purple">🚀→💰 Conversão Trial → Vendas</div>
-      <div class="card-subtitle">Média do período: <span class="text-purple" id="convTV"></span></div>
       <div class="chart-container"><canvas id="chartConvTV"></canvas></div>
     </div>
 
     <!-- Conv Download > Vendas -->
     <div class="card">
       <div class="card-title text-green">📥→💰 Conversão Download → Vendas (End-to-End)</div>
-      <div class="card-subtitle">Média do período: <span class="text-green" id="convDV"></span></div>
       <div class="chart-container"><canvas id="chartConvDV"></canvas></div>
     </div>
 
@@ -217,7 +213,7 @@
 
   <script>
     // SENHA
-    const SENHA_CORRETA = 'gigu2025';
+    const SENHA_CORRETA = 'Gigu2025!JU';
 
     function handleLogin(e) {
       e.preventDefault();
@@ -293,7 +289,7 @@
     const convGeralTV = (totalVendas / totalTrials * 100).toFixed(1);
     const convGeralDV = (totalVendas / totalDownloads * 100).toFixed(1);
 
-    // Chart config
+    // Chart config - ALTERADO: "Cresc. mês anterior"
     function createChart(canvasId, labels, barData, barColor, lineData, lineColor, barLabel, yMax) {
       const ctx = document.getElementById(canvasId).getContext('2d');
       new Chart(ctx, {
@@ -309,7 +305,7 @@
               order: 2
             },
             {
-              label: 'Crescimento %',
+              label: 'Cresc. mês anterior',
               data: lineData,
               type: 'line',
               borderColor: lineColor,
@@ -365,7 +361,7 @@
               order: 2
             },
             {
-              label: 'Crescimento %',
+              label: 'Cresc. mês anterior',
               data: crescData,
               type: 'line',
               borderColor: '#F59E0B',
@@ -416,30 +412,9 @@
       const crescPixVal = crescPeriodo(pix);
       const crescPrecoVal = crescPeriodo(preco);
 
-      // Atualizar textos
-      document.getElementById('crescDownloads').textContent = '+' + crescDownloadsVal + '%';
-      document.getElementById('crescCadastros').textContent = '+' + crescCadastrosVal + '%';
-      
-      const trialsEl = document.getElementById('crescTrials');
-      trialsEl.textContent = crescTrialsVal + '%';
-      trialsEl.className = parseFloat(crescTrialsVal) >= 0 ? 'text-cyan' : 'text-red';
-      
-      document.getElementById('crescTotal').textContent = '+' + crescTotalVal + '%';
-      document.getElementById('crescCartao').textContent = '+' + crescCartaoVal + '%';
-      document.getElementById('crescPix').textContent = '+' + crescPixVal + '%';
-      document.getElementById('crescPreco').textContent = '+' + crescPrecoVal + '%';
-
       const mediaCartaoVal = media(cartao);
       const mediaPixVal = media(pix);
       const mediaTotalVal = mediaCartaoVal + mediaPixVal;
-      document.getElementById('partCartao').textContent = (mediaCartaoVal / mediaTotalVal * 100).toFixed(1) + '%';
-      document.getElementById('partPix').textContent = (mediaPixVal / mediaTotalVal * 100).toFixed(1) + '%';
-      document.getElementById('mediaPreco').textContent = 'R$' + (soma(preco) / 5).toFixed(2);
-
-      document.getElementById('convDC').textContent = convGeralDC + '%';
-      document.getElementById('convCT').textContent = convGeralCT + '%';
-      document.getElementById('convTV').textContent = convGeralTV + '%';
-      document.getElementById('convDV').textContent = convGeralDV + '%';
 
       // Gráficos
       createChart('chartDownloads', meses, downloads, '#F97316', calcCresc(downloads), '#F59E0B', 'Downloads', 100000);
@@ -474,14 +449,40 @@
         }
       });
 
+      // Percentuais sobre downloads (etapa inicial)
+      const pctCadastrosTotal = (totalCadastros / totalDownloads * 100).toFixed(1);
+      const pctTrialsTotal = (totalTrials / totalDownloads * 100).toFixed(1);
+      const pctVendasTotal = (totalVendas / totalDownloads * 100).toFixed(1);
+
+      // Percentuais sobre etapa anterior
+      const pctCadastrosAnt = (totalCadastros / totalDownloads * 100).toFixed(1);
+      const pctTrialsAnt = (totalTrials / totalCadastros * 100).toFixed(1);
+      const pctVendasAnt = (totalVendas / totalTrials * 100).toFixed(1);
+
+      // NOVO: Funil com DUPLO percentual
       document.getElementById('funnelStats').innerHTML = `
-        <div><div class="value text-orange">${formatNum(totalDownloads)}</div><div class="label">Downloads (100%)</div></div>
+        <div>
+          <div class="value text-orange">${formatNum(totalDownloads)}</div>
+          <div class="label">Downloads (100%)</div>
+        </div>
         <div class="funnel-arrow">→</div>
-        <div><div class="value text-pink">${formatNum(totalCadastros)}</div><div class="label">Cadastros (${convGeralDC}%)</div></div>
+        <div>
+          <div class="value text-pink">${formatNum(totalCadastros)}</div>
+          <div class="label">Cadastros (${pctCadastrosTotal}%)</div>
+          <div class="sublabel">← ${pctCadastrosAnt}% dos Downloads</div>
+        </div>
         <div class="funnel-arrow">→</div>
-        <div><div class="value text-cyan">${formatNum(totalTrials)}</div><div class="label">Trials (${(totalTrials/totalDownloads*100).toFixed(1)}%)</div></div>
+        <div>
+          <div class="value text-cyan">${formatNum(totalTrials)}</div>
+          <div class="label">Trials (${pctTrialsTotal}%)</div>
+          <div class="sublabel">← ${pctTrialsAnt}% dos Cadastros</div>
+        </div>
         <div class="funnel-arrow">→</div>
-        <div><div class="value text-purple">${formatNum(totalVendas)}</div><div class="label">Vendas (${convGeralDV}%)</div></div>
+        <div>
+          <div class="value text-purple">${formatNum(totalVendas)}</div>
+          <div class="label">Vendas (${pctVendasTotal}%)</div>
+          <div class="sublabel">← ${pctVendasAnt}% dos Trials</div>
+        </div>
       `;
 
       // Conversões
@@ -490,15 +491,31 @@
       createConvChart('chartConvTV', meses, convTV, '#8B5CF6', crescConvTV, 35, 50);
       createConvChart('chartConvDV', meses, convDV, '#10B981', crescConvDV, 20, 26);
 
-      // Tabela
+      // Tabela COM variação mês a mês
+      const crescDownloads = calcCresc(downloads);
+      const crescCadastros = calcCresc(cadastros);
+      const crescTrials = calcCresc(trials);
+      const crescTotal = calcCresc(total);
+
+      const formatVar = (val) => {
+        if (val === null) return '<span class="text-gray">-</span>';
+        const color = val >= 0 ? 'text-green' : 'text-red';
+        const prefix = val >= 0 ? '+' : '';
+        return `<span class="${color}">${prefix}${val}%</span>`;
+      };
+
       let tableHTML = '';
       for (let i = 0; i < 5; i++) {
         tableHTML += `<tr>
           <td>${meses[i]}</td>
           <td>${formatNum(downloads[i])}</td>
+          <td>${formatVar(crescDownloads[i])}</td>
           <td>${formatNum(cadastros[i])}</td>
+          <td>${formatVar(crescCadastros[i])}</td>
           <td>${formatNum(trials[i])}</td>
+          <td>${formatVar(crescTrials[i])}</td>
           <td>${formatNum(total[i])}</td>
+          <td>${formatVar(crescTotal[i])}</td>
         </tr>`;
       }
       document.getElementById('tableBody').innerHTML = tableHTML;
